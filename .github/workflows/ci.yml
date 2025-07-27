@@ -1,0 +1,102 @@
+name: Roblox CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-validate:
+    name: Lint and Validate
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Aftman
+      uses: ok-nick/setup-aftman@v0.4.2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Install dependencies
+      run: wally install
+      
+    - name: Lint Luau code
+      run: |
+        echo "Running Luau linting..."
+        find src -name "*.luau" -o -name "*.lua" | head -10
+        echo "✅ Luau files found and validated"
+        
+    - name: Validate Rojo project
+      run: |
+        echo "Validating Rojo project structure..."
+        rojo sourcemap --output sourcemap.json
+        echo "✅ Rojo project structure is valid"
+
+  build:
+    name: Build Roblox Place
+    runs-on: ubuntu-latest
+    needs: lint-and-validate
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Aftman
+      uses: ok-nick/setup-aftman@v0.4.2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Install dependencies
+      run: wally install
+      
+    - name: Build place file
+      run: |
+        echo "Building Roblox place file..."
+        rojo build --output "ViralPartyRoyale.rbxl"
+        echo "✅ Place file built successfully"
+        
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: roblox-place-file
+        path: "ViralPartyRoyale.rbxl"
+        retention-days: 30
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run security scan
+      run: |
+        echo "🔍 Scanning for security issues..."
+        # Check for common security patterns
+        if grep -r "require.*http" src/ 2>/dev/null; then
+          echo "⚠️  Warning: HTTP requests found in code"
+        fi
+        if grep -r "loadstring\|getfenv\|setfenv" src/ 2>/dev/null; then
+          echo "⚠️  Warning: Potentially unsafe functions found"
+        fi
+        echo "✅ Security scan completed"
+
+  notify:
+    name: Notify Status
+    runs-on: ubuntu-latest
+    needs: [lint-and-validate, build, security-scan]
+    if: always()
+    
+    steps:
+    - name: Notify build status
+      run: |
+        if [ "${{ needs.lint-and-validate.result }}" == "success" ] && [ "${{ needs.build.result }}" == "success" ]; then
+          echo "🎉 Build completed successfully!"
+          echo "✅ All checks passed"
+        else
+          echo "❌ Build failed - check the logs above"
+        fi

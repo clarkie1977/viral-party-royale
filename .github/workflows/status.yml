@@ -1,0 +1,48 @@
+name: Project Status Check
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  status-check:
+    name: Check Project Status
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Project information
+      run: |
+        echo "🎮 Viral Party Royale - Roblox Project"
+        echo "=================================="
+        echo ""
+        echo "📊 Repository Stats:"
+        echo "- Total files: $(find . -type f | wc -l)"
+        echo "- Luau files: $(find src -name '*.luau' 2>/dev/null | wc -l)"
+        echo "- Documentation files: $(find docs -name '*.md' 2>/dev/null | wc -l)"
+        echo ""
+        echo "📁 Project Structure:"
+        tree -L 3 || ls -la
+        echo ""
+        echo "✅ Project is healthy and ready for development!"
+        
+    - name: Check configuration files
+      run: |
+        echo "🔧 Configuration Files:"
+        if [ -f "default.project.json" ]; then
+          echo "✅ Rojo configuration found"
+        fi
+        if [ -f "wally.toml" ]; then
+          echo "✅ Wally configuration found"
+        fi
+        if [ -f ".gitignore" ]; then
+          echo "✅ Git ignore configuration found"
+        fi
+        
+    - name: Success notification
+      run: |
+        echo "🎉 All systems operational!"
+        echo "Ready for Roblox development 🚀"

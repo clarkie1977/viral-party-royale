@@ -1,0 +1,55 @@
+name: Release Build
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+        default: 'v1.0.0'
+
+jobs:
+  release-build:
+    name: Create Release Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Aftman
+      uses: ok-nick/setup-aftman@v0.4.2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Install dependencies
+      run: wally install
+      
+    - name: Build release version
+      run: |
+        echo "🚀 Building release version..."
+        rojo build --output "ViralPartyRoyale-Release.rbxl"
+        echo "✅ Release build completed"
+        
+    - name: Create release notes
+      run: |
+        echo "# Viral Party Royale Release" > release-notes.md
+        echo "" >> release-notes.md
+        echo "## What's New" >> release-notes.md
+        echo "- Latest features and improvements" >> release-notes.md
+        echo "- Bug fixes and optimizations" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "## Installation" >> release-notes.md
+        echo "1. Download the .rbxl file" >> release-notes.md
+        echo "2. Open in Roblox Studio" >> release-notes.md
+        echo "3. Publish to your game" >> release-notes.md
+        
+    - name: Upload release assets
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-build
+        path: |
+          ViralPartyRoyale-Release.rbxl
+          release-notes.md
