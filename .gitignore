@@ -1,0 +1,56 @@
+# Roblox Studio Files
+*.rbxlx
+*.rbxl.lock
+Place.rbxl
+Place.rbxl.lock
+
+# Wally Package Manager
+wally.lock
+Packages/
+
+# Rojo Build Output
+*.rbxlx
+*.rbxl
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary folders
+tmp/
+temp/
+
+# Node modules (if using any Node.js tools)
+node_modules/
+
+# Roblox-specific ignores
+sourcemap.json
+build/
+dist/
+
+# Temporary files
+git-commands.txt
